@@ -1,3 +1,3 @@
 package dsl
 
-case class Threshold[T](attr: String, predicates: Seq[PredicateExpr[T]])
+case class Threshold(attr: String, predicates: Seq[PredicateExpr])

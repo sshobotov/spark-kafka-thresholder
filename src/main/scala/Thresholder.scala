@@ -1,3 +1,4 @@
+import java.util.UUID
 import org.apache.spark._
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.kafka._
@@ -14,19 +15,19 @@ object Thresholder {
       val conf = new SparkConf().setAppName("SparkKafkaThresholder")
       val ssc = new StreamingContext(conf, Seconds(settings.batchInterval))
 
-      val input = KafkaUtils.createStream(ssc, settings.zkQuorum.toString, settings.groupId, topics = Map(
-        settings.inputTopic -> settings.readingThreadsNum
-      ))
+      val input = KafkaUtils.createStream(ssc, settings.zkQuorum.toString, settings.groupId.getOrElse(UUID.randomUUID().toString),
+        topics = Map(settings.inputTopic -> settings.readingThreadsNum))
       val output = outputProducer(settings.kafkaHost.toString)
 
       input
         .map(parseMessage)
         .filter(_.isDefined)
         .filter(_.get.value > 10)
-        .foreachRDD(entryOpt => {
-          val Some(entry) = entryOpt.first()
-          val message = s"At ${entry.timestamp} on ${entry.host} for ${entry.plugin} threshold ${} was "
-          output.send(new ProducerRecord(settings.outputTopic, null, message))
+        .foreachRDD(entries => {
+          entries.foreach { case Some(entry) =>
+            val message = s"At ${entry.timestamp} on ${entry.host} for ${entry.plugin} threshold ${} was "
+            output.send(new ProducerRecord(settings.outputTopic, null, message))
+          }
         })
 
       ssc.start()

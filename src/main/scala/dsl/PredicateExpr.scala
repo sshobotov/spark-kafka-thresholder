@@ -1,14 +1,14 @@
 package dsl
 
-//import PredicateExpr._
+import PredicateExpr._
 
-case class PredicateExpr[T](cmp: Ordering[T], value: T)
+case class PredicateExpr(cmp: CmpOp, value: Float)
 
-//object PredicateExpr {
-//
-//  object CmpOperator extends Enumeration {
-//    val LT, LTE, EQ, GTE, GT = Value
-//  }
-//  type CmpOperator = CmpOperator.Value
-//
-//}
+object PredicateExpr {
+
+  object CmpOp extends Enumeration {
+    val LT, LTE, EQ, GTE, GT = Value
+  }
+  type CmpOp = CmpOp.Value
+
+}
