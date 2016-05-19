@@ -6,15 +6,15 @@ import dsl.{Threshold, PredicateExpr}
 
 object ThresholdParser extends JavaTokenParsers {
 
-  def eq: Parser[PredicateExpr.CmpOp] = "=" ^^ (_ => PredicateExpr.CmpOp.EQ)
+  def eq: Parser[PredicateExpr.CmpOp] = "=" ^^ (_ => PredicateExpr.EQ)
 
-  def lt: Parser[PredicateExpr.CmpOp] = "<" ^^ (_ => PredicateExpr.CmpOp.LT)
+  def lt: Parser[PredicateExpr.CmpOp] = "<" ^^ (_ => PredicateExpr.LT)
 
-  def gt: Parser[PredicateExpr.CmpOp] = ">" ^^ (_ => PredicateExpr.CmpOp.GT)
+  def gt: Parser[PredicateExpr.CmpOp] = ">" ^^ (_ => PredicateExpr.GT)
 
-  def lte: Parser[PredicateExpr.CmpOp] = "<=" ^^ (_ => PredicateExpr.CmpOp.LTE)
+  def lte: Parser[PredicateExpr.CmpOp] = "<=" ^^ (_ => PredicateExpr.LTE)
 
-  def gte: Parser[PredicateExpr.CmpOp] = ">=" ^^ (_ => PredicateExpr.CmpOp.GTE)
+  def gte: Parser[PredicateExpr.CmpOp] = ">=" ^^ (_ => PredicateExpr.GTE)
 
   def cmp: Parser[PredicateExpr.CmpOp] = lt | lte | eq | gt | gte
 
@@ -24,8 +24,8 @@ object ThresholdParser extends JavaTokenParsers {
 
   def orPredicate: Parser[PredicateExpr] = "," ~ predicate ^^ { case _ ~ expr => expr }
 
-  def threshold: Parser[Threshold] = stringLiteral ~ ":" ~ predicate ~ orPredicate ^^ {
-    case (attr ~ _ ~ expr ~ orExprSeq) => Threshold(attr, Seq(expr))
+  def threshold: Parser[Threshold] = ident ~ ":" ~ predicate ~ (orPredicate*) ^^ {
+    case (attr ~ _ ~ expr ~ orExprSeq) => Threshold(attr, expr :: orExprSeq)
   }
 
   def apply(input: String): Option[Threshold] = parseAll(threshold, input) match {

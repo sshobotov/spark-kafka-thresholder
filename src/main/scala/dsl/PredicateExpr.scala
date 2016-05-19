@@ -2,13 +2,32 @@ package dsl
 
 import PredicateExpr._
 
-case class PredicateExpr(cmp: CmpOp, value: Float)
+case class PredicateExpr(op: CmpOp, value: Float)
 
 object PredicateExpr {
 
-  object CmpOp extends Enumeration {
-    val LT, LTE, EQ, GTE, GT = Value
+  sealed trait CmpOp {
+    def apply(fst: Float, snd: Float): Boolean
   }
-  type CmpOp = CmpOp.Value
+
+  object LT extends CmpOp {
+    def apply(fst: Float, snd: Float) = fst < snd
+  }
+
+  object LTE extends CmpOp {
+    def apply(fst: Float, snd: Float) = fst <= snd
+  }
+
+  object EQ extends CmpOp {
+    def apply(fst: Float, snd: Float) = fst == snd
+  }
+
+  object GTE extends CmpOp {
+    def apply(fst: Float, snd: Float) = fst >= snd
+  }
+
+  object GT extends CmpOp {
+    def apply(fst: Float, snd: Float) = fst > snd
+  }
 
 }

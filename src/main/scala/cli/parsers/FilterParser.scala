@@ -6,10 +6,10 @@ import dsl.Filter
 
 object FilterParser extends JavaTokenParsers {
 
-  def orFilter: Parser[String] = "," ~ stringLiteral ^^ { case _ ~ str => str }
+  def orFilter: Parser[String] = "," ~ ident ^^ { case _ ~ str => str }
 
-  def filter: Parser[Filter] = stringLiteral ~ ":" ~ stringLiteral ~ orFilter ^^ {
-    case (attr ~ _ ~ value ~ orValueSeq) => Filter(attr, Seq(value))
+  def filter: Parser[Filter] = ident ~ ":" ~ ident ~ (orFilter*) ^^ {
+    case (attr ~ _ ~ value ~ orValueSeq) => Filter(attr, value :: orValueSeq)
   }
 
   def apply(input: String): Option[Filter] = parseAll(filter, input) match {
