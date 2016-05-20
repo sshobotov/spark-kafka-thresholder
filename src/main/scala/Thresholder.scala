@@ -2,7 +2,7 @@ import java.util.Properties
 
 import dsl.{PredicateExpr, Threshold, Filter}
 import kafka.producer.{ProducerConfig, KeyedMessage, Producer}
-import kafka.serializer.{StringEncoder, StringDecoder}
+import kafka.serializer.StringDecoder
 import org.apache.spark._
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.kafka._
@@ -49,15 +49,12 @@ object Thresholder {
 
   def inputStream(ssc: StreamingContext, brokers: String, topic: String) =
     KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, Map(
-      "metadata.broker.list" -> brokers,
-      "serializer.class" -> classOf[StringEncoder].getName,
-      "auto.offset.reset" -> "smallest"
+      "metadata.broker.list" -> brokers
     ), topics = Set(topic))
 
   def outputProducer(brokers: String) =
     new Producer[String, String](new ProducerConfig(Map(
-      "metadata.broker.list" -> brokers,
-      "serializer.class" -> classOf[StringEncoder].getName
+      "metadata.broker.list" -> brokers
     )))
 
   def parseMessage(entry: (String, String)): Option[JValue] = {
